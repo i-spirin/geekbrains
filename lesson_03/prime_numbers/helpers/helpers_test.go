@@ -1,7 +1,9 @@
-package main
+package helpers_test
 
 import (
 	"testing"
+
+	"github.com/i-spirin/geekbrains/lesson_03/prime_numbers/helpers"
 )
 
 func TestIsPrime(t *testing.T) {
@@ -37,7 +39,7 @@ func TestIsPrime(t *testing.T) {
 
 	var result bool
 	for _, el := range cases {
-		result = isPrime(el.argument)
+		result = helpers.IsPrime(el.argument)
 		if result != el.expected {
 			t.Fatalf("TestIsPrime failed: %d given, %t got, %t expected", el.argument, result, el.expected)
 		}

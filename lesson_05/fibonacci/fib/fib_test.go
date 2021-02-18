@@ -1,6 +1,10 @@
-package main
+package fib_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/i-spirin/geekbrains/lesson_05/fibonacci/fib"
+)
 
 func TestFib(t *testing.T) {
 	cases := []struct {
@@ -22,7 +26,7 @@ func TestFib(t *testing.T) {
 	}
 
 	for _, el := range cases {
-		result := fib(el.argument)
+		result := fib.Fib(el.argument)
 		if result != el.expected {
 			t.Fatalf("TestFib failed %d given, %d got, %d expected", el.argument, result, el.expected)
 		}
@@ -34,7 +38,7 @@ var GlobalF int
 func BenchmarkFib(t *testing.B) {
 	x := 0
 	for i := 0; i < t.N; i++ {
-		x = fib(10)
+		x = fib.Fib(10)
 	}
 	GlobalF = x
 }

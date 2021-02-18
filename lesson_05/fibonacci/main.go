@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/i-spirin/geekbrains/lesson_05/fibonacci/fib"
 )
 
 func main() {
@@ -14,7 +16,7 @@ func main() {
 		if isExists == true {
 			return result
 		}
-		result = fib(n)
+		result = fib.Fib(n)
 		cache[n] = result
 		return result
 	}
@@ -26,12 +28,4 @@ func main() {
 		fmt.Printf("%d\n", fibCache(n))
 	}
 
-}
-
-func fib(n int) int {
-	if n <= 2 {
-		return 1
-	}
-
-	return fib(n-1) + fib(n-2)
 }
