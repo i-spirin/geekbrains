@@ -3,26 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
-	"math"
 	"strconv"
+
+	"github.com/i-spirin/geekbrains/lesson_03/prime_numbers/helpers"
 )
-
-func isPrime(n int) bool {
-	if n < 2 {
-		return false
-	}
-	if n == 2 {
-		return true
-	}
-
-	for i := 2; i <= int(math.Sqrt(float64(n))); i++ {
-		if n%i == 0 {
-			// composite number
-			return false
-		}
-	}
-	return true
-}
 
 func main() {
 	var n string
@@ -38,7 +22,7 @@ func main() {
 	}
 
 	for i := 2; i <= newN; i++ {
-		if isPrime(i) {
+		if helpers.IsPrime(i) {
 			fmt.Printf("%d ", i)
 		}
 	}
