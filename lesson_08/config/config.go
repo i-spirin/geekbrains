@@ -5,9 +5,12 @@ import (
 	"log"
 	"os"
 	"strconv"
+
+	"gopkg.in/yaml.v2"
 )
 
 var (
+	configFile      = flag.String("config_path", "", "Path to config file")
 	flaglogPath     = flag.String("log_path", "", "Path to store log file")
 	flagbindSIPHost = flag.String("bind_sip_host", "::1", "Interface to bind SIP endpoint")
 	flagbindSIPPort = flag.Int("bind_sip_port", 5060, "Port to bind SIP endpoint")
@@ -21,42 +24,55 @@ var (
 
 // Config is struct for configuration options storing
 type Config struct {
-	logPath     string
-	bindSIPHost string
-	bindSIPPort int
-	RTPPortMin  int
-	RTPPortMax  int
-	userAgent   string
-	bindAPIHost string
-	bindAPIPort int
-	SIPDebug    bool
+	LogPath     string `yaml:"log_path"`
+	BindSIPHost string `yaml:"bind_sip_host"`
+	BindSIPPort int    `yaml:"bind_sip_port"`
+	RTPPortMin  int    `yaml:"rtp_port_min"`
+	RTPPortMax  int    `yaml:"rtp_port_max"`
+	UserAgent   string `yaml:"user_agent"`
+	BindAPIHost string `yaml:"bind_api_host"`
+	BindAPIPort int    `yaml:"bind_api_port"`
+	SIPDebug    bool   `yaml:"sip_debug"`
 }
 
 // Parse configuration from flags or environment
 func (c *Config) Parse() {
 	flag.Parse()
 
-	c.logPath = *flaglogPath
-	c.bindSIPHost = *flagbindSIPHost
-	c.bindSIPPort = *flagbindSIPPort
+	if *configFile == "" {
+		c.parseFlagsOrEnv()
+	} else {
+		err := c.parseFile(*configFile)
+		if err != nil {
+			log.Fatalf("Error loading config %+v", err)
+		}
+	}
+
+}
+
+func (c *Config) parseFlagsOrEnv() {
+
+	c.LogPath = *flaglogPath
+	c.BindSIPHost = *flagbindSIPHost
+	c.BindSIPPort = *flagbindSIPPort
 	c.RTPPortMin = *flagrtpPortMin
 	c.RTPPortMax = *flagrtpPortMax
-	c.userAgent = *flaguserAgent
-	c.bindAPIHost = *flagbindAPIHost
-	c.bindAPIPort = *flagbindAPIPort
+	c.UserAgent = *flaguserAgent
+	c.BindAPIHost = *flagbindAPIHost
+	c.BindAPIPort = *flagbindAPIPort
 	c.SIPDebug = *flagsipDebug
 
 	logPath := os.Getenv("LOGPATH")
 	if logPath != "" {
-		c.logPath = logPath
+		c.LogPath = logPath
 	}
 	bindSIPHost := os.Getenv("BINDSIPHOST")
 	if bindSIPHost != "" {
-		c.bindSIPHost = bindSIPHost
+		c.BindSIPHost = bindSIPHost
 	}
 	bindSIPPort := os.Getenv("BINDSIPPORT")
 	if bindSIPPort != "" {
-		c.bindSIPPort = castPort(bindSIPPort)
+		c.BindSIPPort = castPort(bindSIPPort)
 	}
 	rtpPortMin := os.Getenv("RTPPORTMIN")
 	if rtpPortMin != "" {
@@ -68,15 +84,15 @@ func (c *Config) Parse() {
 	}
 	userAgent := os.Getenv("USERAGENT")
 	if userAgent != "" {
-		c.userAgent = userAgent
+		c.UserAgent = userAgent
 	}
 	bindAPIHost := os.Getenv("BINDAPIHOST")
 	if bindAPIHost != "" {
-		c.bindAPIHost = bindAPIHost
+		c.BindAPIHost = bindAPIHost
 	}
 	bindAPIPort := os.Getenv("BINDAPIPORT")
 	if bindAPIPort != "" {
-		c.bindAPIPort = castPort(bindAPIPort)
+		c.BindAPIPort = castPort(bindAPIPort)
 	}
 	sipDebug := os.Getenv("SIPDEBUG")
 	if sipDebug != "" {
@@ -98,4 +114,25 @@ func castBool(value string) bool {
 		log.Fatalf("Error parsing boolean value: %s %v", value, err)
 	}
 	return result
+}
+
+// ParseFile method for parsing configuration from YAML file
+func (c *Config) parseFile(filename string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			log.Printf("Could not close file: %+v", err)
+		}
+	}()
+
+	err = yaml.NewDecoder(file).Decode(c)
+	if err != nil {
+		return err
+	}
+	return nil
 }
