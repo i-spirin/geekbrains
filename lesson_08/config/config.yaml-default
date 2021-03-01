@@ -1,0 +1,9 @@
+log_path: /var/log/softswitch.log
+bind_sip_host: 0.0.0.0
+bind_sip_port: 5060
+rtp_port_min: 40000
+rtp_port_max: 50000
+user_agent: softswitch/1.0
+bind_api_host: 127.0.0.1
+bind_api_port: 8080
+sip_debug: true
